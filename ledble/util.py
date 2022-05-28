@@ -33,9 +33,11 @@ from bleak.exc import BleakError
 
 class BaseDriver():
     _client = None
+    _debug = False
 
     def log(self, *args) -> None:
-        print(f" -> {inspect.currentframe().f_back.f_code.co_name}: ", *args)
+        if self._debug:
+            print(f" {self.__class__.__name__} -> {inspect.currentframe().f_back.f_code.co_name}: ", *args)
 
     def __init__(self):
         pass

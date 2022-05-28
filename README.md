@@ -9,17 +9,16 @@ Progress:
 - [x] Set rgb color
 - [x] Set rgb color sort
 - [x] Set rgb mode (pre-programmed sequences)
-- [ ] On / Off timer
-- [ ] DIY mode
 - [x] Sequence speed
-- [ ] Brightness doesnt work
 - [x] Dimming works
 - [x] Set "dynamic" mode (4 more pre-programmed sequences...)
+- [ ] On / Off timer, still cant get it to work.
+- [ ] DIY mode, (pointless)
+- [ ] Brightness doesnt work
 
 TODO:
-- [ ] Figure out why it disconnects so frequently when sending multiple commands, maybe sending it too fast?
-- [ ] Add all the supported functions of the LED strip
+- [x] ~~Figure out why it disconnects so frequently when sending multiple commands, maybe sending it too fast?~~ It appears to be a linux bluez/bleak issue on raspberry pi.
+- [x] Add all the supported functions of the LED strip
 - [ ] Add support for multiple LED strips
 - [ ] Add scanning system
-
-
+- [ ] Format it as a module correctly and add it to pypi

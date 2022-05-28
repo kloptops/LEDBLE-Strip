@@ -167,6 +167,15 @@ class LedbleDriver(BaseDriver):
         """Initialize object."""
         pass
 
+    def compatible_name(self, name: str) -> bool:
+        """
+        Returns true if this driver is compatible with the selected BLE device
+        """
+        if name.upper().startswith("LEDBLE"):
+            return True
+
+        return False
+
     async def connect_to_addr(self, mac_address: str, timeout: float = 2.0) -> None:
         await super().connect_to_addr(mac_address, timeout)
 
@@ -244,19 +253,23 @@ class LedbleDriver(BaseDriver):
 
         await self._write_gatt(bytes([126, 4, 2, clamp_byte(speed, 0, 100), 255, 255, 255, 0, 239]))
 
+
     async def set_brightness(self, brightness: int) -> None:
         """
-        Set the brightness
+        Set the brightness.
+
+        Doesnt do much I dont believe.
         """
         self.log(f'{brightness=}')
 
         await self._write_gatt(bytes([126, 4, 1, clamp_byte(brightness, 0, 100), 255, 255, 255, 0, 239]))
 
+
     async def set_diy(self, style: Union[int, str], colors: list[list[int, int, int]]) -> None:
         """
         Set a custom color sequence, with style from DIY_STYLE
 
-        TODO: Fix, it disconnects from too many commands, gotta find the right timing.
+        Seems kinda pointless, from what i can tell it is not stored on device... there is no way to replay it
         """
         self.log(f'{style=}. {colors=}')
 
@@ -267,15 +280,62 @@ class LedbleDriver(BaseDriver):
 
         # Begin DIY
         await self._write_gatt(bytes([126, 5, 14, style, 3, 255, 255, 0, 239]))
-        # await asyncio.sleep(0.1)
+        await asyncio.sleep(0.1)
 
         for (r, g, b) in colors:
             # Set colors
             await self._write_gatt(bytes([126, 7, 16, 3, clamp_byte(r), clamp_byte(g), clamp_byte(b), 0, 239]))
-            # await asyncio.sleep(0.1)
+            await asyncio.sleep(0.1)
 
-        await asyncio.sleep(0.1)
+        await asyncio.sleep(0.2)
         await self._write_gatt(bytes([126, 5, 15, style, 3, 255, 255, 0, 239]))
+
+
+    async def set_music(self, brightness: int, r: int = 0, g: int = 0, b: int = 0) -> None:
+        """
+        I uh... dunno...
+        """
+        self.log(f"{brightness=}, ({r=}, {g=}, {b=})")
+
+        await self._write_gatt(bytes([126, 7, 6, clamp_byte(brightness, 0, 100), 0, 0, 0, 0, 239]))
+
+
+    async def set_dynamic_diy(self, style: Union[int, str], colors: list[list[int, int, int]]) -> None:
+        """
+        Set a custom color sequence, with style from DIY_STYLE
+
+        Seems kinda pointless, from what i can tell it is not stored on device... there is no way to replay it
+        """
+        self.log(f'{style=}. {colors=}')
+
+        if isinstance(style, str):
+            style = self.DIY_STYLE[style]
+        else:
+            style = clamp_byte(style, 0, 3)
+
+        # Begin DIY
+        await self._write_gatt(bytes([126, 5, 10, style, 3, 255, 255, 0, 239]))
+        await asyncio.sleep(0.1)
+
+        for (r, g, b) in colors:
+            # Set colors
+            await self._write_gatt(bytes([126, 7, 11, 3, clamp_byte(r), clamp_byte(g), clamp_byte(b), 0, 239]))
+            await asyncio.sleep(0.1)
+
+        await asyncio.sleep(0.2)
+        await self._write_gatt(bytes([126, 5, 12, style, 3, 255, 255, 0, 239]))
+
+
+    async def set_sensitivity(self, speed: int) -> None:
+        """
+        Set the speed / sensitivity. It seems to be paired with the dynamic_diy.
+
+        Doesnt appear to do anything.
+        """
+        self.log(f'{speed=}')
+
+        await self._write_gatt(bytes([126, 4, 7, clamp_byte(speed, 0, 100), 255, 255, 255, 0, 239]))
+
 
     def _time_to_seconds(self, hour: int, minute: int) -> int:
         """
@@ -336,6 +396,7 @@ class LedbleDriver(BaseDriver):
         self.log(f'{on_or_off=}')
 
         await self._write_gatt(bytes([126, clamp_byte(on_or_off, 0, 1), 13, 255, 255, 1, 255, 255, 239]))
+
 
     async def disable_timer(self, on_or_off: int):
         """
@@ -415,7 +476,4 @@ class LedbleDriver(BaseDriver):
             model = clamp_byte(model, 128, 131)
 
         await self._write_gatt(bytes([126, 5, 3, model, 4, 255, 255, 0, 239]))
-
-
-
 
