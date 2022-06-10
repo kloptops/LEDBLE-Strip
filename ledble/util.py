@@ -42,12 +42,16 @@ class BaseDriver():
     def __init__(self):
         pass
 
-    async def connect_to_addr(self, mac_address: str, timeout: float = 3.0, auto_read: bool = True) -> None:
+    async def connect_to_addr(self, mac_address: str, timeout: float = 3.0, adapter: Union[str, None] = None) -> None:
         """
         Finds BLE by mac_address, then sets self._client to the BleakClient found.
 
         """
-        device = await BleakScanner.find_device_by_address(mac_address, timeout=timeout)
+        kwargs = {}
+        if adapter is not None:
+            kwargs['adapter'] = adapter
+
+        device = await BleakScanner.find_device_by_address(mac_address, timeout=timeout, **kwargs)
 
         if not device:
             raise BleakError(f'A device with address {mac_address} could not be found')

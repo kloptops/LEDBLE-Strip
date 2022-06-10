@@ -176,8 +176,8 @@ class LedbleDriver(BaseDriver):
 
         return False
 
-    async def connect_to_addr(self, mac_address: str, timeout: float = 2.0) -> None:
-        await super().connect_to_addr(mac_address, timeout)
+    async def connect_to_addr(self, mac_address: str, timeout: float = 2.0, adapter: Union[str, None] = None) -> None:
+        await super().connect_to_addr(mac_address, timeout, adapter)
 
         await self._client.connect()
         self.log("connect")

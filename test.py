@@ -1,5 +1,6 @@
 import asyncio
 import colorsys
+import platform
 
 from bleak import BleakScanner
 
@@ -62,9 +63,15 @@ async def main():
     driver = ledble.LedbleDriver()
     ADDRESS = None
     # ADDRESS = "C0:00:00:00:02:37"
+    adapter = None
+
+    if platform.system() == 'Linux':
+        # hci1
+        adapter='hci1'
 
     if ADDRESS is None:
         print("Finding a compatible device")
+        # devices = await BleakScanner.discover(adapter=adapter)
         devices = await BleakScanner.discover()
 
         for d in devices:
@@ -78,7 +85,7 @@ async def main():
 
     print(f"Connecting to {ADDRESS}")
 
-    await driver.connect_to_addr(ADDRESS)
+    await driver.connect_to_addr(ADDRESS, adapter=adapter)
     print("Connected")
 
     # await driver.set_on()
